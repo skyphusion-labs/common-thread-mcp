@@ -1,0 +1,33 @@
+version: 2
+
+# skyphusion-labs Dependabot standard
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: ci
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: deps
+    groups:
+      vitest-toolchain:
+        patterns:
+          - "vitest"
+          - "@vitest/*"
+      npm-minor-patch:
+        patterns: ["*"]
+        exclude-patterns:
+          - "vitest"
+          - "@vitest/*"
+        update-types: ["minor", "patch"]

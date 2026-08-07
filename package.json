@@ -1,0 +1,58 @@
+{
+  "name": "@skyphusion/common-thread-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for Common Thread: drive the full investigation API (create, seeds, ingest, attribute, packets) from an agent. Self-host or approved hosted backend.",
+  "license": "MIT",
+  "type": "module",
+  "homepage": "https://github.com/skyphusion-labs/common-thread-mcp",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/skyphusion-labs/common-thread-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/skyphusion-labs/common-thread-mcp/issues"
+  },
+  "keywords": [
+    "mcp",
+    "common-thread",
+    "model-context-protocol",
+    "attribution",
+    "sockpuppet",
+    "ai",
+    "mit"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "bin": {
+    "common-thread-mcp": "dist/index.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage.enabled=true --coverage.provider=v8 --coverage.reporter=text --coverage.reporter=cobertura",
+    "start": "node dist/index.js",
+    "prepublishOnly": "npm run typecheck && npm test && npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "@vitest/coverage-v8": "^4.1.10",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.10"
+  }
+}
