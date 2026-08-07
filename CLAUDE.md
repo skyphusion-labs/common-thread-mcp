@@ -4,21 +4,21 @@ Guidance for agents working in this repository.
 
 ## What this is
 
-**`@skyphusion/common-thread-mcp`:** stdio MCP server that drives the Common Thread
-backend HTTP API (same surface as the public web UI). MIT client door; Common Thread
-remains AGPL (implementation) + CC-BY (paper).
+**`@skyphusion/common-thread-mcp`:** stdio MCP server that drives the Common Thread backend HTTP API
+(same surface as the public web UI). MIT client door; Common Thread remains AGPL (implementation) +
+CC-BY (paper).
 
-**Status: v0.1.0** (root `package.json` / git tags / `CHANGELOG` if present).
+**Status: v0.1.1** (root `package.json` / tags). Re-count tools from `src/tools.ts`.
 
-## Relation to the stack
+## Documentation map
 
-| Repo | Role |
-|------|------|
-| **This package** | MCP tools + HTTP client (npm) |
-| [common-thread](https://github.com/skyphusion-labs/common-thread) | Backend Worker API + web UI (authoritative `docs/API.md`) |
-
-MCP talks to the **backend** (`COMMON_THREAD_API_URL`), not the web Worker HTML shell.
-The web UI proxies via `/api/proxy`; agents call the backend directly.
+| Doc | Role |
+|-----|------|
+| `docs/mcp.md` | Full install, agent wiring, tool reference, troubleshooting |
+| `docs/PARITY.md` | Website vs tools honesty matrix |
+| `docs/SECURITY.md` | Capability tokens, BYOK, boundaries |
+| `README.md` | npm front door |
+| Product `docs/API.md` | Authoritative HTTP contract (common-thread repo) |
 
 ## Commands
 
@@ -43,9 +43,10 @@ npm start   # node dist/index.js (stdio)
 - `VERSION` in `src/version.ts` must match `package.json` (test enforces).
 - Never log access tokens or BYOK keys.
 - stdout = MCP JSON-RPC only; logs on stderr.
+- User-Agent required on outbound fetch (Cloudflare bot filter).
 
 ## Release
 
 1. Bump `package.json` + `src/version.ts` together.
 2. PR to `main` (aviation-grade).
-3. Annotated tag `vX.Y.Z` on main -> `publish-npm.yml` publishes `@skyphusion/common-thread-mcp`.
+3. Annotated tag `vX.Y.Z` on main → `publish-npm.yml` publishes `@skyphusion/common-thread-mcp`.
