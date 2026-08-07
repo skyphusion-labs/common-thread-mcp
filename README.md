@@ -1,18 +1,31 @@
 # @skyphusion/common-thread-mcp
 
-**MIT** MCP server that drives the [Common Thread](https://github.com/skyphusion-labs/common-thread) HTTP API -- the same surface the public web UI uses (`common-thread.skyphusion.org`).
+**MIT** [Model Context Protocol](https://modelcontextprotocol.io/) server for [Common Thread](https://github.com/skyphusion-labs/common-thread): drive the full investigation API from an agent (create cases, seeds, Apify ingest, BYOK attribution, evidence packets).
 
-An agent can create investigations, manage seeds, ingest Apify Twitter exports, run attribution (BYOK on the public host), poll jobs, list runs, and export evidence packets (JSON / Markdown / PDF).
+| | |
+|--|--|
+| **npm** | [`@skyphusion/common-thread-mcp`](https://www.npmjs.com/package/@skyphusion/common-thread-mcp) |
+| **Repo** | https://github.com/skyphusion-labs/common-thread-mcp |
+| **Product UI** | https://common-thread.skyphusion.org |
+| **HTTP contract** | [common-thread `docs/API.md`](https://github.com/skyphusion-labs/common-thread/blob/main/docs/API.md) |
+| **License** | MIT (this package). Product: AGPL implementation + CC-BY paper |
 
-## Install
+## Documentation
+
+| Doc | Audience |
+|-----|----------|
+| **[docs/mcp.md](docs/mcp.md)** | Full guide: install, agent config, auth, every tool, troubleshooting |
+| **[docs/PARITY.md](docs/PARITY.md)** | Website UI vs MCP tools |
+| **[docs/SECURITY.md](docs/SECURITY.md)** | Tokens, BYOK, hosted vs self-host |
+| [CLAUDE.md](CLAUDE.md) | Agent working notes for this repo |
+
+## Quick start
 
 ```bash
-npm install -g @skyphusion/common-thread-mcp
-# or one-shot
 npx -y @skyphusion/common-thread-mcp
 ```
 
-## Claude Desktop / Claude Code config
+Claude Desktop / Claude Code example:
 
 ```json
 {
@@ -22,7 +35,7 @@ npx -y @skyphusion/common-thread-mcp
       "args": ["-y", "@skyphusion/common-thread-mcp"],
       "env": {
         "COMMON_THREAD_API_URL": "https://common-thread-backend.skyphusion.org",
-        "COMMON_THREAD_AI_GATEWAY_URL": "https://gateway.ai.cloudflare.com/v1/.../anthropic",
+        "COMMON_THREAD_AI_GATEWAY_URL": "https://gateway.ai.cloudflare.com/v1/ACCOUNT/GATEWAY/anthropic",
         "COMMON_THREAD_ANTHROPIC_API_KEY": "sk-ant-..."
       }
     }
@@ -30,69 +43,45 @@ npx -y @skyphusion/common-thread-mcp
 }
 ```
 
-Self-host the [common-thread](https://github.com/skyphusion-labs/common-thread) backend and point `COMMON_THREAD_API_URL` at it for full control. The **hosted** API is operated for the public UI and approved integrations; see `docs/API.md` in the main repo before building heavy third-party load against it.
+1. Call **`create_investigation`** and **store `access_token` once**.
+2. Set `COMMON_THREAD_INVESTIGATION_ID` + `COMMON_THREAD_ACCESS_TOKEN`, or pass them on every tool.
+3. Ingest → features → **`attribute`** (BYOK on public host) → **`get_packet`**.
 
-## Environment
+## Environment (summary)
 
-| Variable | Required | Purpose |
-|----------|----------|---------|
-| `COMMON_THREAD_API_URL` | No | Backend base URL (default `https://common-thread-backend.skyphusion.org`) |
-| `COMMON_THREAD_ACCESS_TOKEN` | No* | Default capability token (`ct_…`) for tools |
-| `COMMON_THREAD_INVESTIGATION_ID` | No* | Default investigation id |
-| `COMMON_THREAD_AI_GATEWAY_URL` | For public attribute | BYOK gateway URL |
-| `COMMON_THREAD_ANTHROPIC_API_KEY` | For public attribute | BYOK Anthropic key (or use CF token) |
-| `COMMON_THREAD_CF_AIG_TOKEN` | For public attribute | AI Gateway Run token (keyless Unified Billing) |
-| `COMMON_THREAD_API_TIMEOUT_MS` | No | Request timeout (default 120000) |
+| Variable | Purpose |
+|----------|---------|
+| `COMMON_THREAD_API_URL` | Backend base (default hosted backend) |
+| `COMMON_THREAD_ACCESS_TOKEN` / `COMMON_THREAD_INVESTIGATION_ID` | Defaults for tools |
+| `COMMON_THREAD_AI_GATEWAY_URL` + Anthropic key or `COMMON_THREAD_CF_AIG_TOKEN` | BYOK for public attribution |
 
-\*Per-tool `investigation_id` + `access_token` args always override env defaults. `create_investigation` returns the token **once** -- store it.
+Full table: [docs/mcp.md#environment](docs/mcp.md#environment).
 
-## Typical agent workflow
+## Tools (23)
 
-```text
-create_investigation          -> save access_token + id
-add_seed (optional)           -> seeds also register on ingest
-ingest_apify_twitter          -> jobId
-get_ingest_job (poll)         -> completed
-list_features                 -> verify extractors
-attribute (BYOK on public)    -> runs or async jobId
-get_attribution_job (if 202)
-list_runs / get_run
-get_packet (json|markdown|pdf)
-seal_investigation            -> read-only
-```
+Lifecycle: `health`, `create_investigation`, `get_investigation`, `update_investigation_metadata`, `seal_investigation`, `delete_investigation`, `investigation_summary`
 
-## Tools (website parity)
+Seeds: `list_seeds`, `add_seed`, `remove_seed`
 
-| Tool | API |
-|------|-----|
-| `health` | `GET /` |
-| `create_investigation` | `POST /investigations` |
-| `get_investigation` | `GET /investigations/:id` |
-| `update_investigation_metadata` | `PATCH /investigations/:id/metadata` |
-| `seal_investigation` | `POST /investigations/:id/seal` |
-| `delete_investigation` | `DELETE /investigations/:id` |
-| `investigation_summary` | `GET /investigations/:id/summary` |
-| `list_seeds` / `add_seed` / `remove_seed` | seeds routes |
-| `list_features` | `GET /investigations/:id/features` |
-| `ingest_apify_twitter` / `get_ingest_job` | ingest |
-| `attribute` / `get_attribution_job` | attribution |
-| `list_runs` / `get_run` | runs |
-| `get_packet` | packet JSON / markdown / base64 PDF |
-| `list_manifest` / `list_signatures` / `verify_manifest` | archive |
-| `debug_ingest` / `debug_manifest` | debug (dev) |
+Data: `list_features`, `ingest_apify_twitter`, `get_ingest_job`
 
-Authoritative HTTP contract: [common-thread `docs/API.md`](https://github.com/skyphusion-labs/common-thread/blob/main/docs/API.md).
+Attribution: `attribute`, `get_attribution_job`, `list_runs`, `get_run`
+
+Packets / archive: `get_packet`, `list_manifest`, `list_signatures`, `verify_manifest`
+
+Debug: `debug_ingest`, `debug_manifest`
+
+## Hosted API note
+
+The hosted backend is for the public UI and **approved** integrations. Self-host for unrestricted automation, or contact **common-thread@skyphusion.org** before productizing against hosted.
 
 ## Develop
 
 ```bash
-npm ci
-npm run typecheck
-npm test
-npm run build
-node dist/index.js   # stdio MCP
+npm ci && npm run typecheck && npm test && npm run build
+node dist/index.js
 ```
 
 ## License
 
-MIT. Common Thread itself is AGPL-3.0 (implementation) + CC-BY-4.0 (paper); this client speaks the public HTTP API only.
+MIT. Common Thread product licenses are separate (AGPL-3.0 implementation, CC-BY-4.0 paper).
