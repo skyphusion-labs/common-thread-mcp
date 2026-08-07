@@ -1,6 +1,6 @@
 {
   "name": "@skyphusion/common-thread-mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "MCP server for Common Thread: drive the full investigation API (create, seeds, ingest, attribute, packets) from an agent. Self-host or approved hosted backend.",
   "license": "MIT",
   "type": "module",
