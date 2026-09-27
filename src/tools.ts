@@ -420,7 +420,7 @@ export const TOOLS: ToolDef[] = [
     name: "get_packet",
     description:
       "Evidence packet (§8.1). Default JSON for latest run; pass run_id for a specific run. " +
-      "format=markdown returns markdown text; format=pdf returns base64 PDF (needs PDF worker).",
+      "format=markdown returns markdown text; format=pdf returns base64 PDF (needs PDF worker and run_id).",
     inputSchema: {
       ...INV,
       run_id: z.string().optional(),

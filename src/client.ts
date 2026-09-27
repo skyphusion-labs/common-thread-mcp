@@ -216,6 +216,11 @@ export class CommonThreadClient {
       redactAccounts?: string[];
     } = {},
   ): Promise<{ kind: "json" | "text" | "pdf"; data: unknown }> {
+    // The investigation-level packet route serves JSON and markdown only;
+    // PDF exists on the per-run route (docs/API.md, Evidence packet).
+    if (opts.format === "pdf" && !opts.runId) {
+      throw new CommonThreadError("format=pdf requires run_id");
+    }
     const path = opts.runId
       ? `/investigations/${enc(id)}/packet/${enc(opts.runId)}`
       : `/investigations/${enc(id)}/packet`;

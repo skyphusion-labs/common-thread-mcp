@@ -77,4 +77,28 @@ describe("CommonThreadClient", () => {
     await c.health();
     expect(fetches[0].url).toBe("https://example.test/");
   });
+
+  it("getPacket format=pdf without runId rejects and sends no request", async () => {
+    const c = new CommonThreadClient("https://example.test");
+    await expect(
+      c.getPacket("inv-1", "ct_x", { format: "pdf" }),
+    ).rejects.toThrow(/run_id/);
+    expect(fetches).toHaveLength(0);
+  });
+
+  it("getPacket format=pdf with runId requests the per-run route", async () => {
+    globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
+      fetches.push({ url: String(input), init: {} });
+      return new Response(new Uint8Array([37, 80, 68, 70]), {
+        status: 200,
+        headers: { "Content-Type": "application/pdf" },
+      });
+    }) as typeof fetch;
+    const c = new CommonThreadClient("https://example.test");
+    const r = await c.getPacket("inv-1", "ct_x", { runId: "r1", format: "pdf" });
+    expect(r.kind).toBe("pdf");
+    expect(fetches[0].url).toBe(
+      "https://example.test/investigations/inv-1/packet/r1?format=pdf",
+    );
+  });
 });
