@@ -370,8 +370,9 @@ export const TOOLS: ToolDef[] = [
       if (Array.isArray(a.account_filter))
         body.accountFilter = (a.account_filter as string[]).join(",");
       if (typeof a.max_retries === "number") body.maxRetries = a.max_retries;
+      // The API reads randomizationSeed only when it is a string.
       if (a.randomization_seed !== undefined)
-        body.randomizationSeed = a.randomization_seed;
+        body.randomizationSeed = String(a.randomization_seed);
       const byok = resolveByok(a, d);
       if (byok?.aiGatewayUrl) body.aiGatewayUrl = byok.aiGatewayUrl;
       if (byok?.anthropicApiKey) body.anthropicApiKey = byok.anthropicApiKey;
