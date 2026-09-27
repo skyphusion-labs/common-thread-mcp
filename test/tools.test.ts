@@ -1,4 +1,5 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import { CommonThreadClient } from "../src/client.js";
 import { TOOLS } from "../src/tools.js";
 
 describe("TOOLS catalog", () => {
@@ -29,6 +30,33 @@ describe("TOOLS catalog", () => {
       "verify_manifest",
     ]) {
       expect(names).toContain(required);
+    }
+  });
+});
+
+describe("attribute tool", () => {
+  it("sends a numeric randomization_seed as a string", async () => {
+    const seen: Array<{ url: string; body: unknown }> = [];
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      seen.push({ url: String(input), body: JSON.parse(String(init?.body ?? "{}")) });
+      return new Response(JSON.stringify({ ok: true }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }) as typeof fetch;
+    try {
+      const tool = TOOLS.find((t) => t.name === "attribute")!;
+      const client = new CommonThreadClient("https://example.test");
+      await tool.handler(
+        client,
+        { investigation_id: "inv", access_token: "ct_x", randomization_seed: 42 },
+        {},
+      );
+      expect(seen).toHaveLength(1);
+      expect(seen[0].body).toMatchObject({ randomizationSeed: "42" });
+    } finally {
+      globalThis.fetch = originalFetch;
     }
   });
 });
