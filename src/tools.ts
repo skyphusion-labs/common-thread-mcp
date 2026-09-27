@@ -21,6 +21,8 @@ export interface ToolDef {
     args: Record<string, unknown>,
     defaults: AuthDefaults,
   ) => Promise<unknown>;
+  /** When true for the handler result, the MCP result is flagged isError. */
+  isError?: (value: unknown) => boolean;
 }
 
 export interface AuthDefaults {
@@ -473,6 +475,15 @@ export const TOOLS: ToolDef[] = [
     inputSchema: { ...INV },
     handler: async (client, a, d) =>
       client.verifyManifest(invId(a, d), token(a, d)),
+    // At least one signature failed verification.
+    isError: (v) => {
+      const r = v as { totalSignatures?: unknown; validSignatures?: unknown };
+      return (
+        typeof r?.totalSignatures === "number" &&
+        typeof r.validSignatures === "number" &&
+        r.validSignatures < r.totalSignatures
+      );
+    },
   },
   {
     name: "debug_ingest",
@@ -509,7 +520,9 @@ export function registerTools(
             (args ?? {}) as Record<string, unknown>,
             defaults,
           );
-          return ok(value);
+          const result = ok(value);
+          if (tool.isError?.(value)) result.isError = true;
+          return result;
         } catch (err) {
           return fail(err);
         }

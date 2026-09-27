@@ -4,6 +4,7 @@
 
 ## Unreleased
 
+- **fix:** `verify_manifest` sets `isError` when any signature fails verification (#18).
 - **fix:** `get_packet` with `format=pdf` and no `run_id` now returns an error instead of reporting success on a non-PDF body (#16).
 - **fix:** `attribute` sends a numeric `randomization_seed` as a string so the API honors it (#17).
 - **docs:** full operator/agent guide (`docs/mcp.md`), parity matrix, security notes; README as front door.

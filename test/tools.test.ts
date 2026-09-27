@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { CommonThreadClient } from "../src/client.js";
-import { TOOLS } from "../src/tools.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { TOOLS, registerTools } from "../src/tools.js";
 
 describe("TOOLS catalog", () => {
   it("exports unique tool names covering the web surface", () => {
@@ -58,5 +59,49 @@ describe("attribute tool", () => {
     } finally {
       globalThis.fetch = originalFetch;
     }
+  });
+});
+
+describe("verify_manifest tool result", () => {
+  async function run(payload: unknown) {
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = vi.fn(async () =>
+      new Response(JSON.stringify(payload), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    ) as typeof fetch;
+    try {
+      let cb: ((args: unknown) => Promise<{ isError?: boolean }>) | undefined;
+      const server = {
+        tool: (name: string, _d: string, _s: unknown, fn: typeof cb) => {
+          if (name === "verify_manifest") cb = fn;
+        },
+      } as unknown as McpServer;
+      registerTools(server, new CommonThreadClient("https://example.test"), {});
+      return await cb!({ investigation_id: "inv", access_token: "ct_x" });
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  }
+
+  it("sets isError when a signature failed verification", async () => {
+    const r = await run({
+      investigationId: "inv",
+      totalSignatures: 2,
+      validSignatures: 1,
+      allValid: false,
+    });
+    expect(r.isError).toBe(true);
+  });
+
+  it("does not set isError when all signatures are valid", async () => {
+    const r = await run({
+      investigationId: "inv",
+      totalSignatures: 2,
+      validSignatures: 2,
+      allValid: true,
+    });
+    expect(r.isError).toBeUndefined();
   });
 });
