@@ -224,7 +224,7 @@ Public host with `PUBLIC_BYOK_ONLY` requires BYOK. May return **200** (sync runs
 
 **`get_packet`** -- evidence packet (§8.1).
 - `run_id`: omit for latest run
-- `format`: `json` (default) | `markdown` | `pdf` (base64; needs PDF worker)
+- `format`: `json` (default) | `markdown` | `pdf` (base64; needs PDF worker and `run_id`)
 - `practitioner`, `redact`, `redact_accounts`
 
 **`list_manifest`** -- `GET /manifest?investigation=`

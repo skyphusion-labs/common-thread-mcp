@@ -4,6 +4,7 @@
 
 ## Unreleased
 
+- **fix:** `get_packet` with `format=pdf` and no `run_id` now returns an error instead of reporting success on a non-PDF body (#16).
 - **docs:** full operator/agent guide (`docs/mcp.md`), parity matrix, security notes; README as front door.
 
 ## v0.1.1 -- 2026-08-07
