@@ -231,7 +231,7 @@ Public host with `PUBLIC_BYOK_ONLY` requires BYOK. May return **200** (sync runs
 
 **`list_signatures`** -- `GET /signatures?investigation=`
 
-**`verify_manifest`** -- `GET /verify?investigation=`
+**`verify_manifest`** -- `GET /verify?investigation=`. Returns `isError` when `allValid` is false: an invalid signature, or zero signatures (the error text then starts with "Error: no signatures").
 
 ### Debug (dev)
 

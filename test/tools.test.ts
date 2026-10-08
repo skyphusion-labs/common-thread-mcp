@@ -72,7 +72,9 @@ describe("verify_manifest tool result", () => {
       }),
     ) as typeof fetch;
     try {
-      let cb: ((args: unknown) => Promise<{ isError?: boolean }>) | undefined;
+      let cb:
+        | ((args: unknown) => Promise<{ isError?: boolean; content: { text: string }[] }>)
+        | undefined;
       const server = {
         tool: (name: string, _d: string, _s: unknown, fn: typeof cb) => {
           if (name === "verify_manifest") cb = fn;
@@ -93,6 +95,40 @@ describe("verify_manifest tool result", () => {
       allValid: false,
     });
     expect(r.isError).toBe(true);
+  });
+
+  it("sets isError and says 'no signatures' when the manifest has zero signatures (#21)", async () => {
+    const r = await run({
+      investigationId: "inv",
+      totalSignatures: 0,
+      validSignatures: 0,
+      allValid: false,
+    });
+    expect(r.isError).toBe(true);
+    expect(r.content[0].text).toMatch(/no signatures/i);
+  });
+
+  it("an invalid signature is an error WITHOUT the 'no signatures' text", async () => {
+    const r = await run({
+      investigationId: "inv",
+      totalSignatures: 2,
+      validSignatures: 1,
+      allValid: false,
+    });
+    expect(r.isError).toBe(true);
+    expect(r.content.map((c) => c.text).join("")).not.toMatch(/no signatures/i);
+  });
+
+  it("CONTROL: a validly signed manifest still verifies with no error", async () => {
+    const r = await run({
+      investigationId: "inv",
+      totalSignatures: 3,
+      validSignatures: 3,
+      allValid: true,
+    });
+    expect(r.isError).toBeUndefined();
+    expect(r.content).toHaveLength(1);
+    expect(r.content[0].text).toContain('"allValid": true');
   });
 
   it("does not set isError when all signatures are valid", async () => {
