@@ -23,6 +23,8 @@ export interface ToolDef {
   ) => Promise<unknown>;
   /** When true for the handler result, the MCP result is flagged isError. */
   isError?: (value: unknown) => boolean;
+  /** Text prepended to the MCP result when isError is true, so a caller can tell causes apart. */
+  errorNote?: (value: unknown) => string | undefined;
 }
 
 export interface AuthDefaults {
@@ -475,15 +477,26 @@ export const TOOLS: ToolDef[] = [
     inputSchema: { ...INV },
     handler: async (client, a, d) =>
       client.verifyManifest(invId(a, d), token(a, d)),
-    // At least one signature failed verification.
+    // Error when the API says allValid is false (this covers zero signatures,
+    // #21) or when any signature failed verification.
     isError: (v) => {
-      const r = v as { totalSignatures?: unknown; validSignatures?: unknown };
+      const r = v as {
+        allValid?: unknown;
+        totalSignatures?: unknown;
+        validSignatures?: unknown;
+      };
       return (
-        typeof r?.totalSignatures === "number" &&
-        typeof r.validSignatures === "number" &&
-        r.validSignatures < r.totalSignatures
+        r?.allValid === false ||
+        (typeof r?.totalSignatures === "number" &&
+          typeof r.validSignatures === "number" &&
+          r.validSignatures < r.totalSignatures)
       );
     },
+    // Zero signatures reads differently from an invalid signature.
+    errorNote: (v) =>
+      (v as { totalSignatures?: unknown })?.totalSignatures === 0
+        ? "Error: no signatures. This manifest has never been signed, so nothing was verified."
+        : undefined,
   },
   {
     name: "debug_ingest",
@@ -521,7 +534,11 @@ export function registerTools(
             defaults,
           );
           const result = ok(value);
-          if (tool.isError?.(value)) result.isError = true;
+          if (tool.isError?.(value)) {
+            result.isError = true;
+            const note = tool.errorNote?.(value);
+            if (note) result.content.unshift({ type: "text", text: note });
+          }
           return result;
         } catch (err) {
           return fail(err);

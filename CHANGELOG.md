@@ -4,6 +4,7 @@
 
 ## Unreleased
 
+- **fix:** `verify_manifest` sets `isError` when the manifest has zero signatures, with "no signatures" in the error text, so an unsigned manifest no longer reads as success (#21).
 - **fix:** `verify_manifest` sets `isError` when any signature fails verification (#18).
 - **fix:** `get_packet` with `format=pdf` and no `run_id` now returns an error instead of reporting success on a non-PDF body (#16).
 - **fix:** `attribute` sends a numeric `randomization_seed` as a string so the API honors it (#17).
