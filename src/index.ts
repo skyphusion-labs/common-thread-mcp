@@ -7,7 +7,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import {
   CommonThreadClient,
-  DEFAULT_API_URL,
+  resolveApiUrl,
   type ByokCredentials,
 } from "./client.js";
 import { registerTools, type AuthDefaults } from "./tools.js";
@@ -18,11 +18,11 @@ function env(name: string): string {
 }
 
 async function main(): Promise<void> {
-  const apiUrl = env("COMMON_THREAD_API_URL") || DEFAULT_API_URL;
-  if (!/^https?:\/\//.test(apiUrl)) {
-    console.error(
-      "common-thread-mcp: COMMON_THREAD_API_URL must start with http:// or https://",
-    );
+  let apiUrl: string;
+  try {
+    apiUrl = resolveApiUrl(process.env["COMMON_THREAD_API_URL"]);
+  } catch (err) {
+    console.error((err as Error).message);
     process.exit(1);
   }
 

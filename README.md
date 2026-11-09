@@ -6,7 +6,7 @@
 |--|--|
 | **npm** | [`@skyphusion/common-thread-mcp`](https://www.npmjs.com/package/@skyphusion/common-thread-mcp) |
 | **Repo** | https://github.com/skyphusion-labs/common-thread-mcp |
-| **Product UI** | https://common-thread.skyphusion.org |
+| **Hosting** | None. The hosted backend and UI were retired 2026-11-09; self-host only |
 | **HTTP contract** | [common-thread `docs/API.md`](https://github.com/skyphusion-labs/common-thread/blob/main/docs/API.md) |
 | **License** | MIT (this package). Product: AGPL implementation + CC-BY paper |
 
@@ -34,7 +34,7 @@ Claude Desktop / Claude Code example:
       "command": "npx",
       "args": ["-y", "@skyphusion/common-thread-mcp"],
       "env": {
-        "COMMON_THREAD_API_URL": "https://common-thread-backend.skyphusion.org",
+        "COMMON_THREAD_API_URL": "https://your-worker.example.workers.dev",
         "COMMON_THREAD_AI_GATEWAY_URL": "https://gateway.ai.cloudflare.com/v1/ACCOUNT/GATEWAY/anthropic",
         "COMMON_THREAD_ANTHROPIC_API_KEY": "sk-ant-..."
       }
@@ -51,7 +51,7 @@ Claude Desktop / Claude Code example:
 
 | Variable | Purpose |
 |----------|---------|
-| `COMMON_THREAD_API_URL` | Backend base (default hosted backend) |
+| `COMMON_THREAD_API_URL` | **Required.** Your self-hosted backend base URL. No default; startup fails without it |
 | `COMMON_THREAD_ACCESS_TOKEN` / `COMMON_THREAD_INVESTIGATION_ID` | Defaults for tools |
 | `COMMON_THREAD_AI_GATEWAY_URL` + Anthropic key or `COMMON_THREAD_CF_AIG_TOKEN` | BYOK for public attribution |
 
@@ -73,7 +73,7 @@ Debug: `debug_ingest`, `debug_manifest`
 
 ## Hosted API note
 
-The hosted backend is for the public UI and **approved** integrations. Self-host for unrestricted automation, or contact **common-thread@skyphusion.org** before productizing against hosted.
+There is no hosted backend: it was retired 2026-11-09 and `common-thread-backend.skyphusion.org` no longer resolves. Self-host the Worker and point `COMMON_THREAD_API_URL` at it. Questions: **common-thread@skyphusion.org**.
 
 ## Develop
 
