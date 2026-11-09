@@ -1,6 +1,6 @@
 # Common Thread MCP parity matrix
 
-What a human does on the **web UI** (`common-thread.skyphusion.org` or a self-hosted web Worker) versus **curated MCP tools** in `@skyphusion/common-thread-mcp`.
+What a human does on the **web UI** (a self-hosted web Worker; the hosted UI was retired 2026-11-09) versus **curated MCP tools** in `@skyphusion/common-thread-mcp`.
 
 **Version:** package `0.1.x` -- re-count tools from `src/tools.ts` (`TOOLS` length).
 

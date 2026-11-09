@@ -5,7 +5,21 @@
 export const USER_AGENT =
   "common-thread-mcp (+https://github.com/skyphusion-labs/common-thread-mcp)";
 
-export const DEFAULT_API_URL = "https://common-thread-backend.skyphusion.org";
+// There is NO default backend: the hosted Common Thread backend was retired 2026-11-09 and its
+// hostname no longer resolves. The URL is required config (self-host only).
+export function resolveApiUrl(raw: string | undefined): string {
+  const url = (raw ?? "").trim();
+  if (!url) {
+    throw new Error(
+      "common-thread-mcp: COMMON_THREAD_API_URL is required. There is no hosted backend " +
+        "(retired 2026-11-09); set it to your self-hosted Common Thread Worker, e.g. https://your-worker.example.workers.dev",
+    );
+  }
+  if (!/^https?:\/\//.test(url)) {
+    throw new Error("common-thread-mcp: COMMON_THREAD_API_URL must start with http:// or https://");
+  }
+  return url;
+}
 
 export class CommonThreadError extends Error {
   readonly status?: number;

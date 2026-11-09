@@ -28,7 +28,7 @@ Drive Common Thread from an AI agent (Claude Code, Cursor, or any [Model Context
 
 Common Thread attributes coordinated inauthentic behavior from **public** behavioral signals. Given seed accounts, it emits calibrated claims at three bands (`insufficient`, `consistent`, `strongly_consistent`). It stops at cluster-level attribution; it never identifies natural persons.
 
-The public UI is at [common-thread.skyphusion.org](https://common-thread.skyphusion.org). This MCP exposes the **same backend API** that UI uses, so an agent can:
+There is no hosted UI any more (retired 2026-11-09). This MCP exposes the **same backend API** the web UI used, so an agent can:
 
 1. Create an investigation and store the one-time capability token
 2. Add seeds and ingest Apify Twitter exports
@@ -52,7 +52,7 @@ flowchart LR
 
 - **Transport:** stdio JSON-RPC (MCP SDK). **stdout is protocol only**; logs go to stderr.
 - **No product secrets in the package.** API URL, capability tokens, and BYOK keys are env or per-tool args.
-- **Self-host or hosted.** Point `COMMON_THREAD_API_URL` at your Worker or the public backend.
+- **Self-host only.** `COMMON_THREAD_API_URL` is required and points at your Worker; there is no hosted backend (retired 2026-11-09).
 
 ## Install
 
@@ -75,7 +75,7 @@ Requires **Node >= 20**.
       "command": "npx",
       "args": ["-y", "@skyphusion/common-thread-mcp"],
       "env": {
-        "COMMON_THREAD_API_URL": "https://common-thread-backend.skyphusion.org",
+        "COMMON_THREAD_API_URL": "https://your-worker.example.workers.dev",
         "COMMON_THREAD_AI_GATEWAY_URL": "https://gateway.ai.cloudflare.com/v1/ACCOUNT/GATEWAY/anthropic",
         "COMMON_THREAD_ANTHROPIC_API_KEY": "sk-ant-..."
       }
@@ -101,7 +101,7 @@ Same shape: command `npx` (or path to `common-thread-mcp` / `node dist/index.js`
 
 | Variable | Required | Purpose |
 |----------|----------|---------|
-| `COMMON_THREAD_API_URL` | No | Backend base URL (default `https://common-thread-backend.skyphusion.org`) |
+| `COMMON_THREAD_API_URL` | **Yes** | Backend base URL of your self-hosted Worker. No default; the server exits at startup with an error naming this variable when unset |
 | `COMMON_THREAD_ACCESS_TOKEN` | No* | Default capability token `ct_…` |
 | `COMMON_THREAD_INVESTIGATION_ID` | No* | Default investigation id |
 | `COMMON_THREAD_AI_GATEWAY_URL` | Public attribute | BYOK gateway (`…/anthropic` or `https://api.anthropic.com`) |
@@ -237,12 +237,9 @@ Public host with `PUBLIC_BYOK_ONLY` requires BYOK. May return **200** (sync runs
 
 **`debug_ingest`** / **`debug_manifest`** -- extractor/manifest visibility. Not methodology deliverables.
 
-## Hosted API policy
+## Hosting
 
-The production API at `https://common-thread-backend.skyphusion.org` is operated for the public UI and **approved** integrations. It is **not** a general open API for third-party products.
-
-- Self-host freely (AGPL) and point this MCP at your Worker: [common-thread SETUP](https://github.com/skyphusion-labs/common-thread/blob/main/docs/SETUP.md).
-- Heavy or productized use of the hosted backend: contact **common-thread@skyphusion.org** first (see product `docs/API.md` / `docs/contact.md`).
+There is no hosted backend. It was retired 2026-11-09 (the hostname no longer resolves). Self-host (AGPL) and point this MCP at your Worker: [common-thread SETUP](https://github.com/skyphusion-labs/common-thread/blob/main/docs/SETUP.md). Questions: **common-thread@skyphusion.org**.
 
 CORS does not apply to this MCP (no browser `Origin`); the policy is operational, not a technical CORS gate.
 
