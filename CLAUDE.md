@@ -4,9 +4,10 @@ Guidance for agents working in this repository.
 
 ## What this is
 
-**`@skyphusion/common-thread-mcp`:** stdio MCP server that drives the Common Thread backend HTTP API
-(same surface as the public web UI). MIT client door; Common Thread remains AGPL (implementation) +
-CC-BY (paper).
+**`@skyphusion/common-thread-mcp`:** stdio MCP server that drives a self-hosted Common Thread backend HTTP API
+(the same surface the web UI used). The hosted backend and UI were retired 2026-11-09.
+`COMMON_THREAD_API_URL` is required (`src/client.ts`); there is no default host. MIT client door;
+Common Thread remains AGPL (implementation) + CC-BY (paper).
 
 **Status: v0.1.1** (root `package.json` / tags). Re-count tools from `src/tools.ts`.
 
@@ -34,7 +35,7 @@ npm start   # node dist/index.js (stdio)
 - Create: no token; response includes `access_token` once.
 - Everything under `/investigations/:id` needs `Authorization: Bearer ct_…`.
 - Pass token per tool arg or set `COMMON_THREAD_ACCESS_TOKEN` + `COMMON_THREAD_INVESTIGATION_ID`.
-- Public host attribution: BYOK headers/body (`PUBLIC_BYOK_ONLY`).
+- Attribution BYOK is optional request config, not a public host: `COMMON_THREAD_AI_GATEWAY_URL`, `COMMON_THREAD_ANTHROPIC_API_KEY`, `COMMON_THREAD_CF_AIG_TOKEN`. This package does not set `PUBLIC_BYOK_ONLY`.
 
 ## Conventions
 
